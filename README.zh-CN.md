@@ -1,27 +1,27 @@
-# Workerman User Support
+# Workerman 用户支持
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-[![Latest Version](https://img.shields.io/packagist/v/tourze/workerman-user-support.svg?style=flat-square)](https://packagist.org/packages/tourze/workerman-user-support)
-[![Total Downloads](https://img.shields.io/packagist/dt/tourze/workerman-user-support.svg?style=flat-square)](https://packagist.org/packages/tourze/workerman-user-support)
+[![最新版本](https://img.shields.io/packagist/v/tourze/workerman-user-support.svg?style=flat-square)](https://packagist.org/packages/tourze/workerman-user-support)
+[![总下载量](https://img.shields.io/packagist/dt/tourze/workerman-user-support.svg?style=flat-square)](https://packagist.org/packages/tourze/workerman-user-support)
 
-A library to add user support for Workerman connections, making it easy to associate user data with connections.
+一个为 Workerman 连接添加用户支持的库，使关联用户数据与连接变得简单。
 
-## Features
+## 功能特性
 
-- Associate user data with Workerman connections
-- Track upload and download statistics for each user
-- Support for user speed limits
-- Automatic cleanup of user data when connections are closed (using WeakMap)
-- PSR-compatible logging and caching
+- 将用户数据与 Workerman 连接关联
+- 跟踪每个用户的上传和下载统计信息
+- 支持用户速度限制
+- 当连接关闭时自动清理用户数据（使用 WeakMap）
+- 兼容 PSR 的日志和缓存
 
-## Installation
+## 安装方法
 
 ```bash
 composer require tourze/workerman-user-support
 ```
 
-## Quick Start
+## 快速开始
 
 ```php
 <?php
@@ -33,58 +33,58 @@ use Tourze\Workerman\UserSupport\User;
 use Workerman\Connection\ConnectionInterface;
 use Workerman\Worker;
 
-// Create a worker instance
+// 创建 worker 实例
 $worker = new Worker('websocket://0.0.0.0:12345');
 
-// Configure with your own logger and cache implementation
+// 配置你自己的日志和缓存实现
 $logger = new YourPsrLogger();
 $cache = new YourPsrCache();
 
 $worker->onConnect = function (ConnectionInterface $connection) use ($logger, $cache) {
-    // Create a user and associate it with the connection
+    // 创建用户并与连接关联
     $user = new User(
         $logger,
         $cache,
-        123, // User ID
-        'password123', // Password (if needed)
-        1024 // Speed limit in bytes/second (if needed)
+        123, // 用户ID
+        'password123', // 密码（如需要）
+        1024 // 速度限制（字节/秒，如需要）
     );
 
     ConnectionManager::setUser($connection, $user);
 };
 
 $worker->onMessage = function (ConnectionInterface $connection, $data) {
-    // Get user associated with this connection
+    // 获取与此连接关联的用户
     $user = ConnectionManager::getUser($connection);
 
     if ($user) {
-        // Track data usage
+        // 跟踪数据使用情况
         $bytes = strlen($data);
         $user->incrUploadSize($bytes);
 
-        // Check if user exceeds speed limit
+        // 检查用户是否超过速度限制
         $speedLimit = $user->getSpeedLimit();
         if ($speedLimit > 0 && $user->getUploadSize() > $speedLimit) {
-            // Handle speed limit exceeded
+            // 处理超过速度限制的情况
         }
     }
 };
 
 $worker->onClose = function (ConnectionInterface $connection) {
-    // No need to clean up, WeakMap handles this automatically
+    // 无需清理，WeakMap 会自动处理
 };
 
 Worker::runAll();
 ```
 
-## API Documentation
+## API 文档
 
-### User Class
+### User 类
 
-The `User` class represents a remote user with associated data and statistics.
+`User` 类代表一个远程用户及其关联数据和统计信息。
 
 ```php
-// Constructor
+// 构造函数
 public function __construct(
     private readonly LoggerInterface $logger,
     private readonly CacheInterface $cache,
@@ -93,37 +93,37 @@ public function __construct(
     private readonly int $speedLimit = 0,
 )
 
-// Methods
-public function getId(): int
+// 方法
+public function getId(): int 
 public function getPassword(): string
 public function getSpeedLimit(): int
 
-// Upload statistics
+// 上传统计
 public function incrUploadSize(int $flowSize): int
 public function getUploadSize(): int
 public function popUploadStat(): int
 
-// Download statistics
+// 下载统计
 public function incrDownloadSize(int $flowSize): int
 public function getDownloadSize(): int
 public function popDownloadStat(): int
 ```
 
-### ConnectionManager Class
+### ConnectionManager 类
 
-The `ConnectionManager` class manages the association between connections and users.
+`ConnectionManager` 类管理连接和用户之间的关联。
 
 ```php
-// Static methods
+// 静态方法
 public static function init(): void
 public static function getUser(ConnectionInterface $connection): ?User
 public static function setUser(ConnectionInterface $connection, User $user): void
 ```
 
-## Contributing
+## 贡献
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+欢迎贡献！请随时提交 Pull Request。
 
-## License
+## 许可证
 
-The MIT License (MIT). Please see [License File](LICENSE) for more information.
+MIT 许可证。更多信息请查看 [许可证文件](LICENSE)。
