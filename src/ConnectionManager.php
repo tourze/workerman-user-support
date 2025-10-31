@@ -1,20 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\Workerman\UserSupport;
 
-use WeakMap;
 use Workerman\Connection\ConnectionInterface;
 
 class ConnectionManager
 {
     /**
-     * @var WeakMap<ConnectionInterface, User>
+     * @var \WeakMap<ConnectionInterface, User>
      */
-    private static WeakMap $userMap;
+    private static \WeakMap $userMap;
 
     public static function init(): void
     {
-        self::$userMap = new WeakMap();
+        self::$userMap = new \WeakMap();
     }
 
     public static function getUser(ConnectionInterface $connection): ?User

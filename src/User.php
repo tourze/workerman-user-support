@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\Workerman\UserSupport;
 
 use Psr\Log\LoggerInterface;
@@ -16,8 +18,7 @@ class User
         private readonly int $id,
         private readonly string $password = '',
         private readonly int $speedLimit = 0,
-    )
-    {
+    ) {
     }
 
     public function getId(): int
@@ -30,14 +31,14 @@ class User
         return $this->password;
     }
 
-    ///////////////////
+    // /////////////////
 
     public function getSpeedLimit(): int
     {
         return $this->speedLimit;
     }
 
-    //////////////////
+    // ////////////////
 
     private function getUploadStatKey(): string
     {
@@ -50,14 +51,16 @@ class User
             'userId' => $this->getId(),
             'value' => $flowSize,
         ]);
-        $newVal = intval($this->cache->get($this->getUploadStatKey()) + $flowSize);
+        $currentValue = (int) ($this->cache->get($this->getUploadStatKey()) ?? 0);
+        $newVal = $currentValue + $flowSize;
         $this->cache->set($this->getUploadStatKey(), $newVal);
+
         return $newVal;
     }
 
     public function getUploadSize(): int
     {
-        return intval($this->cache->get($this->getUploadStatKey()));
+        return (int) ($this->cache->get($this->getUploadStatKey()) ?? 0);
     }
 
     public function popUploadStat(): int
@@ -69,7 +72,7 @@ class User
         }
     }
 
-    //////////////////
+    // ////////////////
 
     private function getDownloadStatKey(): string
     {
@@ -82,14 +85,16 @@ class User
             'userId' => $this->getId(),
             'value' => $flowSize,
         ]);
-        $newVal = intval($this->cache->get($this->getDownloadStatKey()) + $flowSize);
+        $currentValue = (int) ($this->cache->get($this->getDownloadStatKey()) ?? 0);
+        $newVal = $currentValue + $flowSize;
         $this->cache->set($this->getDownloadStatKey(), $newVal);
+
         return $newVal;
     }
 
     public function getDownloadSize(): int
     {
-        return intval($this->cache->get($this->getDownloadStatKey()));
+        return (int) ($this->cache->get($this->getDownloadStatKey()) ?? 0);
     }
 
     public function popDownloadStat(): int

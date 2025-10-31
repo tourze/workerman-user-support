@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\Workerman\UserSupport\Tests;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -10,7 +13,11 @@ use Tourze\Workerman\UserSupport\ConnectionManager;
 use Tourze\Workerman\UserSupport\User;
 use Workerman\Connection\ConnectionInterface;
 
-class ConnectionManagerTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(ConnectionManager::class)]
+final class ConnectionManagerTest extends TestCase
 {
     /**
      * @var ConnectionInterface&MockObject
@@ -21,16 +28,16 @@ class ConnectionManagerTest extends TestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         // 初始化ConnectionManager
         ConnectionManager::init();
 
         // 创建模拟对象
         $this->connection = $this->createMock(ConnectionInterface::class);
 
-        /** @var LoggerInterface&MockObject $logger */
         $logger = $this->createMock(LoggerInterface::class);
 
-        /** @var CacheInterface&MockObject $cache */
         $cache = $this->createMock(CacheInterface::class);
 
         // 创建User实例用于测试
@@ -63,7 +70,6 @@ class ConnectionManagerTest extends TestCase
     public function testWeakMapBehavior(): void
     {
         // 测试WeakMap的行为 - 如果删除连接引用，用户应该不再可用
-        /** @var ConnectionInterface&MockObject $tempConnection */
         $tempConnection = $this->createMock(ConnectionInterface::class);
         ConnectionManager::setUser($tempConnection, $this->user);
 
